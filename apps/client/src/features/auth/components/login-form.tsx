@@ -30,8 +30,6 @@ export function LoginForm() {
   const [buttonName, setButtonName] = React.useState<string>("Login with OIDC");
   const [oidcEnabled, setOidcEnabled] = React.useState<boolean>(false);
 
-
-  
   useRedirectIfAuthenticated();
 
   useEffect(() => {

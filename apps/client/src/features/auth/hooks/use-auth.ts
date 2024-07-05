@@ -71,7 +71,8 @@ export default function useAuth() {
 
   const handleIsAuthenticated = async () => {
     try {
-      await api.post(`/users/me`);
+      await api.get("/users/me");
+      return true;
     } catch (err) {
       return false;
     }
