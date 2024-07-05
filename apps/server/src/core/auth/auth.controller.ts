@@ -1,11 +1,13 @@
 import {
   Body,
   Controller,
+  Get,
   HttpCode,
   HttpStatus,
   NotFoundException,
   Post,
   Req,
+  Res,
   UseGuards,
 } from '@nestjs/common';
 import { LoginDto } from './dto/login.dto';
@@ -19,6 +21,11 @@ import { AuthUser } from '../../common/decorators/auth-user.decorator';
 import { User, Workspace } from '@docmost/db/types/entity.types';
 import { AuthWorkspace } from '../../common/decorators/auth-workspace.decorator';
 import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
+import { AuthGuard } from '@nestjs/passport';
+import * as crypto from 'crypto';
+import { FastifyReply, FastifyRequest } from 'fastify';
+import { Issuer } from 'openid-client';
+import { AppRequest } from 'src/common/helpers/types/request';
 
 @Controller('auth')
 export class AuthController {
@@ -27,10 +34,64 @@ export class AuthController {
     private environmentService: EnvironmentService,
   ) {}
 
+  @Get('cb')
+  @HttpCode(HttpStatus.TEMPORARY_REDIRECT)
+  async callback(@Req() req: FastifyRequest, @Res() reply: FastifyReply) {
+    const token = await this.authService.oidcLogin(req, reply);
+
+    this.setCookieOnReply(reply, token);
+
+    return reply.redirect('/home');
+  }
+
+  @Get('oauth-redirect')
+  @HttpCode(HttpStatus.TEMPORARY_REDIRECT)
+  async oauthRedirect(
+    @AuthWorkspace() workspace: Workspace,
+    @Res() reply: FastifyReply,
+  ) {
+    const redirectUri = 'http://localhost:5173/api/auth/cb';
+
+    if (!workspace.oidcIssuerUrl) {
+      return reply.redirect('/login');
+    }
+
+    const issuer = await Issuer.discover(workspace.oidcIssuerUrl);
+
+    if (!issuer.metadata.authorization_endpoint || !workspace.oidcClientId) {
+      return reply.redirect('/login');
+    }
+
+    const redirectUrl =
+      `${issuer.metadata.authorization_endpoint}` +
+      `?response_type=code` +
+      `&client_id=${workspace.oidcClientId}` +
+      `&redirect_uri=${redirectUri}` +
+      `&scope=openid profile email` +
+      `&state=${workspace.id}`;
+
+    return reply.redirect(redirectUrl);
+  }
+
   @HttpCode(HttpStatus.OK)
   @Post('login')
-  async login(@Req() req, @Body() loginInput: LoginDto) {
-    return this.authService.login(loginInput, req.raw.workspaceId);
+  async login(
+    @Req() req: AppRequest,
+    @Res() reply: FastifyReply,
+    @Body() loginInput: LoginDto,
+  ) {
+    const token = await this.authService.login(loginInput, req.raw.workspaceId);
+
+    this.setCookieOnReply(reply, token);
+
+    return reply.send();
+  }
+
+  @Post('logout')
+  @HttpCode(HttpStatus.OK)
+  async logout(@Res() reply: FastifyReply) {
+    reply.clearCookie('token');
+    return reply.send();
   }
 
   /* @HttpCode(HttpStatus.OK)
@@ -60,5 +121,13 @@ export class AuthController {
     @AuthWorkspace() workspace: Workspace,
   ) {
     return this.authService.changePassword(dto, user.id, workspace.id);
+  }
+
+  private setCookieOnReply(reply: FastifyReply, token: string) {
+    reply.setCookie('token', token, {
+      httpOnly: true,
+      path: '/',
+      expires: new Date(Date.now() + 1000 * 60 * 60 * 24 * 30),
+    });
   }
 }

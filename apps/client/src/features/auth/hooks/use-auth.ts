@@ -15,22 +15,21 @@ import { acceptInvitation } from "@/features/workspace/services/workspace-servic
 import Cookies from "js-cookie";
 import { jwtDecode } from "jwt-decode";
 import APP_ROUTE from "@/lib/app-route.ts";
+import api from "@/lib/api-client";
 
 export default function useAuth() {
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
 
   const [, setCurrentUser] = useAtom(currentUserAtom);
-  const [authToken, setAuthToken] = useAtom(authTokensAtom);
 
   const handleSignIn = async (data: ILogin) => {
     setIsLoading(true);
 
     try {
-      const res = await login(data);
-      setIsLoading(false);
-      setAuthToken(res.tokens);
+      const res = await api.post("/auth/login", data);
 
+      setIsLoading(false);
       navigate(APP_ROUTE.HOME);
     } catch (err) {
       console.log(err);
@@ -99,14 +98,8 @@ export default function useAuth() {
     }
   };
 
-  const hasTokens = (): boolean => {
-    return !!authToken;
-  };
-
   const handleLogout = async () => {
-    setAuthToken(null);
-    setCurrentUser(null);
-    Cookies.remove("authTokens");
+    await api.post("/auth/logout");
     navigate(APP_ROUTE.AUTH.LOGIN);
   };
 
@@ -116,7 +109,6 @@ export default function useAuth() {
     setupWorkspace: handleSetupWorkspace,
     isAuthenticated: handleIsAuthenticated,
     logout: handleLogout,
-    hasTokens,
     isLoading,
   };
 }

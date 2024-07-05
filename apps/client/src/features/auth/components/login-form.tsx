@@ -38,6 +38,10 @@ export function LoginForm() {
     await signIn(data);
   }
 
+  async function loginWithOAuth() {
+    window.location.href = "/api/auth/oauth-redirect";
+  }
+
   return (
     <Container size={420} my={40} className={classes.container}>
       <Box p="xl" mt={200}>
@@ -63,7 +67,10 @@ export function LoginForm() {
             {...form.getInputProps("password")}
           />
           <Button type="submit" fullWidth mt="xl" loading={isLoading}>
-            Sign In
+            Login
+          </Button>
+          <Button onClick={loginWithOAuth} fullWidth mt="xl">
+            Login with OAuth
           </Button>
         </form>
       </Box>
