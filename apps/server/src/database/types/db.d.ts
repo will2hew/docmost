@@ -189,11 +189,13 @@ export interface Workspaces {
   settings: Json | null;
 
   // OIDC settings
+  oidcEnabled: boolean;
   oidcClientId: string | null;
   oidcClientSecret: string | null;
   oidcIssuerUrl: string | null;
   oidcJITEnabled: boolean;
   oidcDomains: string[];
+  oidcButtonName: string | null;
 
   updatedAt: Generated<Timestamp>;
 }

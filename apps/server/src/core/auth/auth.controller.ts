@@ -73,6 +73,15 @@ export class AuthController {
     return reply.redirect(redirectUrl);
   }
 
+  @Get('oidc-config')
+  @HttpCode(HttpStatus.OK)
+  async oauthConfig(@AuthWorkspace() workspace: Workspace) {
+    return {
+      enabled: workspace.oidcEnabled,
+      buttonName: workspace.oidcButtonName,
+    };
+  }
+
   @HttpCode(HttpStatus.OK)
   @Post('login')
   async login(
