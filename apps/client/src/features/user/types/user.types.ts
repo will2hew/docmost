@@ -4,19 +4,10 @@ export interface IUser {
   id: string;
   name: string;
   email: string;
-  emailVerifiedAt: Date;
   avatarUrl: string;
   timezone: string;
-  settings: IUserSettings;
-  invitedById: string;
-  lastLoginAt: string;
-  lastActiveAt: Date;
-  createdAt: Date;
-  updatedAt: Date;
   role: string;
   workspaceId: string;
-  deactivatedAt: Date;
-  deletedAt: Date;
   fullPageWidth: boolean; // used for update
 }
 
