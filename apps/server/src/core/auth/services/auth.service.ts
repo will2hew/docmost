@@ -108,7 +108,7 @@ export class AuthService {
     return this.tokenService.generateAccessToken(user);
   }
 
-  async login(loginDto: LoginDto, workspaceId: string) {
+  async login(loginDto: LoginDto, workspaceId: string): Promise<string> {
     const user = await this.userRepo.findByEmail(
       loginDto.email,
       workspaceId,
@@ -125,6 +125,7 @@ export class AuthService {
     user.lastLoginAt = new Date();
     await this.userRepo.updateLastLogin(user.id, workspaceId);
 
+    return this.tokenService.generateAccessToken(user);
     return this.tokenService.generateAccessToken(user);
   }
 

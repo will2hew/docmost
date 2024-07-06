@@ -12,7 +12,6 @@ import {
 } from '@nestjs/common';
 import { LoginDto } from './dto/login.dto';
 import { AuthService } from './services/auth.service';
-import { CreateUserDto } from './dto/create-user.dto';
 import { SetupGuard } from './guards/setup.guard';
 import { EnvironmentService } from '../../integrations/environment/environment.service';
 import { CreateAdminUserDto } from './dto/create-admin-user.dto';
@@ -21,8 +20,6 @@ import { AuthUser } from '../../common/decorators/auth-user.decorator';
 import { User, Workspace } from '@docmost/db/types/entity.types';
 import { AuthWorkspace } from '../../common/decorators/auth-workspace.decorator';
 import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
-import { AuthGuard } from '@nestjs/passport';
-import * as crypto from 'crypto';
 import { FastifyReply, FastifyRequest } from 'fastify';
 import { Issuer } from 'openid-client';
 import { AppRequest } from 'src/common/helpers/types/request';
@@ -137,6 +134,7 @@ export class AuthController {
       httpOnly: true,
       path: '/',
       expires: new Date(Date.now() + 1000 * 60 * 60 * 24 * 30),
+      secure: this.environmentService.getNodeEnv() === 'production',
     });
   }
 }

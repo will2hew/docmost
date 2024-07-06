@@ -71,15 +71,15 @@ export default function useAuth() {
 
   const handleIsAuthenticated = async () => {
     try {
-      await api.get("/users/me");
+      await api.get(`/users/me`);
       return true;
-    } catch (err) {
+    } catch {
       return false;
     }
   };
 
   const handleLogout = async () => {
-    await api.post("/auth/logout");
+    await api.post(`/auth/logout`);
     navigate(APP_ROUTE.AUTH.LOGIN);
   };
 
