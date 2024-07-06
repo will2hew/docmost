@@ -391,12 +391,6 @@ importers:
       '@types/pg':
         specifier: ^8.11.6
         version: 8.11.6
-      '@types/qs':
-        specifier: ^6.9.15
-        version: 6.9.15
-      axios:
-        specifier: ^1.7.2
-        version: 1.7.2
       bcrypt:
         specifier: ^5.1.1
         version: 5.1.1
@@ -439,15 +433,9 @@ importers:
       nodemailer:
         specifier: ^6.9.14
         version: 6.9.14
-      oidc-client-ts:
-        specifier: ^3.0.1
-        version: 3.0.1
       openid-client:
         specifier: ^5.6.5
         version: 5.6.5
-      passport-custom:
-        specifier: ^1.1.1
-        version: 1.1.1
       passport-jwt:
         specifier: ^4.0.1
         version: 4.0.1
@@ -460,9 +448,6 @@ importers:
       postmark:
         specifier: ^4.0.4
         version: 4.0.4
-      qs:
-        specifier: ^6.12.2
-        version: 6.12.2
       react:
         specifier: ^18.3.1
         version: 18.3.1
@@ -484,9 +469,6 @@ importers:
       ws:
         specifier: ^8.17.1
         version: 8.17.1
-      zod:
-        specifier: ^3.23.8
-        version: 3.23.8
     devDependencies:
       '@nestjs/cli':
         specifier: ^10.3.2
@@ -565,7 +547,7 @@ importers:
         version: 7.0.0
       ts-jest:
         specifier: ^29.1.5
-        version: 29.1.5(@babel/core@7.24.3)(@jest/transform@29.7.0)(@jest/types@29.6.3)(babel-jest@29.7.0(@babel/core@7.24.3))(jest@29.7.0(@types/node@20.14.9)(ts-node@10.9.2(@swc/core@1.5.25(@swc/helpers@0.5.11))(@types/node@20.14.9)(typescript@5.5.2)))(typescript@5.5.2)
+        version: 29.1.5(@babel/core@7.24.5)(@jest/transform@29.7.0)(@jest/types@29.6.3)(babel-jest@29.7.0(@babel/core@7.24.5))(jest@29.7.0(@types/node@20.14.9)(ts-node@10.9.2(@swc/core@1.5.25(@swc/helpers@0.5.11))(@types/node@20.14.9)(typescript@5.5.2)))(typescript@5.5.2)
       ts-loader:
         specifier: ^9.5.1
         version: 9.5.1(typescript@5.5.2)(webpack@5.91.0(@swc/core@1.3.101(@swc/helpers@0.5.11))(esbuild@0.19.11))
@@ -6459,10 +6441,6 @@ packages:
   obuf@1.1.2:
     resolution: {integrity: sha512-PX1wu0AmAdPqOL1mWhqmlOd8kOIZQwGZw6rh7uby9fTc5lhaOWFLX3I6R1hrF9k3zUY40e6igsLGkDXK92LJNg==}
 
-  oidc-client-ts@3.0.1:
-    resolution: {integrity: sha512-xX8unZNtmtw3sOz4FPSqDhkLFnxCDsdo2qhFEH2opgWnF/iXMFoYdBQzkwCxAZVgt3FT3DnuBY3k80EZHT0RYg==}
-    engines: {node: '>=18'}
-
   oidc-token-hash@5.0.3:
     resolution: {integrity: sha512-IF4PcGgzAr6XXSff26Sk/+P4KZFJVuHAJZj3wgO3vX2bMdNVp/QXTP3P7CEm9V1IdG8lDLY3HhiqpsE/nOwpPw==}
     engines: {node: ^10.13.0 || >=12.0.0}
@@ -6548,10 +6526,6 @@ packages:
 
   parseley@0.12.1:
     resolution: {integrity: sha512-e6qHKe3a9HWr0oMRVDTRhKce+bRO8VGQR3NyVwcjwrbhMmFCX9KszEV35+rn4AdilFAq9VPxP/Fe1wC9Qjd2lw==}
-
-  passport-custom@1.1.1:
-    resolution: {integrity: sha512-/2m7jUGxmCYvoqenLB9UrmkCgPt64h8ZtV+UtuQklZ/Tn1NpKBeOorCYkB/8lMRoiZ5hUrCoMmDtxCS/d38mlg==}
-    engines: {node: '>= 0.10.0'}
 
   passport-jwt@4.0.1:
     resolution: {integrity: sha512-UCKMDYhNuGOBE9/9Ycuoyh7vP6jpeTp/+sfMJl7nLff/t6dps+iaeE0hhNkKN8/HZHcJ7lCdOyDxHdDoxoSvdQ==}
@@ -9005,9 +8979,9 @@ snapshots:
     dependencies:
       '@babel/core': 7.24.6
 
-  '@babel/plugin-syntax-async-generators@7.8.4(@babel/core@7.24.3)':
+  '@babel/plugin-syntax-async-generators@7.8.4(@babel/core@7.24.5)':
     dependencies:
-      '@babel/core': 7.24.3
+      '@babel/core': 7.24.5
       '@babel/helper-plugin-utils': 7.24.6
     optional: true
 
@@ -9016,9 +8990,9 @@ snapshots:
       '@babel/core': 7.24.6
       '@babel/helper-plugin-utils': 7.24.6
 
-  '@babel/plugin-syntax-bigint@7.8.3(@babel/core@7.24.3)':
+  '@babel/plugin-syntax-bigint@7.8.3(@babel/core@7.24.5)':
     dependencies:
-      '@babel/core': 7.24.3
+      '@babel/core': 7.24.5
       '@babel/helper-plugin-utils': 7.24.6
     optional: true
 
@@ -9027,9 +9001,9 @@ snapshots:
       '@babel/core': 7.24.6
       '@babel/helper-plugin-utils': 7.24.6
 
-  '@babel/plugin-syntax-class-properties@7.12.13(@babel/core@7.24.3)':
+  '@babel/plugin-syntax-class-properties@7.12.13(@babel/core@7.24.5)':
     dependencies:
-      '@babel/core': 7.24.3
+      '@babel/core': 7.24.5
       '@babel/helper-plugin-utils': 7.24.6
     optional: true
 
@@ -9073,9 +9047,9 @@ snapshots:
       '@babel/core': 7.24.6
       '@babel/helper-plugin-utils': 7.24.6
 
-  '@babel/plugin-syntax-import-meta@7.10.4(@babel/core@7.24.3)':
+  '@babel/plugin-syntax-import-meta@7.10.4(@babel/core@7.24.5)':
     dependencies:
-      '@babel/core': 7.24.3
+      '@babel/core': 7.24.5
       '@babel/helper-plugin-utils': 7.24.6
     optional: true
 
@@ -9084,9 +9058,9 @@ snapshots:
       '@babel/core': 7.24.6
       '@babel/helper-plugin-utils': 7.24.6
 
-  '@babel/plugin-syntax-json-strings@7.8.3(@babel/core@7.24.3)':
+  '@babel/plugin-syntax-json-strings@7.8.3(@babel/core@7.24.5)':
     dependencies:
-      '@babel/core': 7.24.3
+      '@babel/core': 7.24.5
       '@babel/helper-plugin-utils': 7.24.6
     optional: true
 
@@ -9100,9 +9074,9 @@ snapshots:
       '@babel/core': 7.24.6
       '@babel/helper-plugin-utils': 7.24.6
 
-  '@babel/plugin-syntax-logical-assignment-operators@7.10.4(@babel/core@7.24.3)':
+  '@babel/plugin-syntax-logical-assignment-operators@7.10.4(@babel/core@7.24.5)':
     dependencies:
-      '@babel/core': 7.24.3
+      '@babel/core': 7.24.5
       '@babel/helper-plugin-utils': 7.24.6
     optional: true
 
@@ -9111,9 +9085,9 @@ snapshots:
       '@babel/core': 7.24.6
       '@babel/helper-plugin-utils': 7.24.6
 
-  '@babel/plugin-syntax-nullish-coalescing-operator@7.8.3(@babel/core@7.24.3)':
+  '@babel/plugin-syntax-nullish-coalescing-operator@7.8.3(@babel/core@7.24.5)':
     dependencies:
-      '@babel/core': 7.24.3
+      '@babel/core': 7.24.5
       '@babel/helper-plugin-utils': 7.24.6
     optional: true
 
@@ -9122,9 +9096,9 @@ snapshots:
       '@babel/core': 7.24.6
       '@babel/helper-plugin-utils': 7.24.6
 
-  '@babel/plugin-syntax-numeric-separator@7.10.4(@babel/core@7.24.3)':
+  '@babel/plugin-syntax-numeric-separator@7.10.4(@babel/core@7.24.5)':
     dependencies:
-      '@babel/core': 7.24.3
+      '@babel/core': 7.24.5
       '@babel/helper-plugin-utils': 7.24.6
     optional: true
 
@@ -9133,9 +9107,9 @@ snapshots:
       '@babel/core': 7.24.6
       '@babel/helper-plugin-utils': 7.24.6
 
-  '@babel/plugin-syntax-object-rest-spread@7.8.3(@babel/core@7.24.3)':
+  '@babel/plugin-syntax-object-rest-spread@7.8.3(@babel/core@7.24.5)':
     dependencies:
-      '@babel/core': 7.24.3
+      '@babel/core': 7.24.5
       '@babel/helper-plugin-utils': 7.24.6
     optional: true
 
@@ -9144,9 +9118,9 @@ snapshots:
       '@babel/core': 7.24.6
       '@babel/helper-plugin-utils': 7.24.6
 
-  '@babel/plugin-syntax-optional-catch-binding@7.8.3(@babel/core@7.24.3)':
+  '@babel/plugin-syntax-optional-catch-binding@7.8.3(@babel/core@7.24.5)':
     dependencies:
-      '@babel/core': 7.24.3
+      '@babel/core': 7.24.5
       '@babel/helper-plugin-utils': 7.24.6
     optional: true
 
@@ -9155,9 +9129,9 @@ snapshots:
       '@babel/core': 7.24.6
       '@babel/helper-plugin-utils': 7.24.6
 
-  '@babel/plugin-syntax-optional-chaining@7.8.3(@babel/core@7.24.3)':
+  '@babel/plugin-syntax-optional-chaining@7.8.3(@babel/core@7.24.5)':
     dependencies:
-      '@babel/core': 7.24.3
+      '@babel/core': 7.24.5
       '@babel/helper-plugin-utils': 7.24.6
     optional: true
 
@@ -9171,9 +9145,9 @@ snapshots:
       '@babel/core': 7.24.6
       '@babel/helper-plugin-utils': 7.24.6
 
-  '@babel/plugin-syntax-top-level-await@7.14.5(@babel/core@7.24.3)':
+  '@babel/plugin-syntax-top-level-await@7.14.5(@babel/core@7.24.5)':
     dependencies:
-      '@babel/core': 7.24.3
+      '@babel/core': 7.24.5
       '@babel/helper-plugin-utils': 7.24.6
     optional: true
 
@@ -12703,13 +12677,13 @@ snapshots:
     transitivePeerDependencies:
       - debug
 
-  babel-jest@29.7.0(@babel/core@7.24.3):
+  babel-jest@29.7.0(@babel/core@7.24.5):
     dependencies:
-      '@babel/core': 7.24.3
+      '@babel/core': 7.24.5
       '@jest/transform': 29.7.0
       '@types/babel__core': 7.20.5
       babel-plugin-istanbul: 6.1.1
-      babel-preset-jest: 29.6.3(@babel/core@7.24.3)
+      babel-preset-jest: 29.6.3(@babel/core@7.24.5)
       chalk: 4.1.2
       graceful-fs: 4.2.11
       slash: 3.0.0
@@ -12793,21 +12767,21 @@ snapshots:
     optionalDependencies:
       '@babel/traverse': 7.24.6
 
-  babel-preset-current-node-syntax@1.0.1(@babel/core@7.24.3):
+  babel-preset-current-node-syntax@1.0.1(@babel/core@7.24.5):
     dependencies:
-      '@babel/core': 7.24.3
-      '@babel/plugin-syntax-async-generators': 7.8.4(@babel/core@7.24.3)
-      '@babel/plugin-syntax-bigint': 7.8.3(@babel/core@7.24.3)
-      '@babel/plugin-syntax-class-properties': 7.12.13(@babel/core@7.24.3)
-      '@babel/plugin-syntax-import-meta': 7.10.4(@babel/core@7.24.3)
-      '@babel/plugin-syntax-json-strings': 7.8.3(@babel/core@7.24.3)
-      '@babel/plugin-syntax-logical-assignment-operators': 7.10.4(@babel/core@7.24.3)
-      '@babel/plugin-syntax-nullish-coalescing-operator': 7.8.3(@babel/core@7.24.3)
-      '@babel/plugin-syntax-numeric-separator': 7.10.4(@babel/core@7.24.3)
-      '@babel/plugin-syntax-object-rest-spread': 7.8.3(@babel/core@7.24.3)
-      '@babel/plugin-syntax-optional-catch-binding': 7.8.3(@babel/core@7.24.3)
-      '@babel/plugin-syntax-optional-chaining': 7.8.3(@babel/core@7.24.3)
-      '@babel/plugin-syntax-top-level-await': 7.14.5(@babel/core@7.24.3)
+      '@babel/core': 7.24.5
+      '@babel/plugin-syntax-async-generators': 7.8.4(@babel/core@7.24.5)
+      '@babel/plugin-syntax-bigint': 7.8.3(@babel/core@7.24.5)
+      '@babel/plugin-syntax-class-properties': 7.12.13(@babel/core@7.24.5)
+      '@babel/plugin-syntax-import-meta': 7.10.4(@babel/core@7.24.5)
+      '@babel/plugin-syntax-json-strings': 7.8.3(@babel/core@7.24.5)
+      '@babel/plugin-syntax-logical-assignment-operators': 7.10.4(@babel/core@7.24.5)
+      '@babel/plugin-syntax-nullish-coalescing-operator': 7.8.3(@babel/core@7.24.5)
+      '@babel/plugin-syntax-numeric-separator': 7.10.4(@babel/core@7.24.5)
+      '@babel/plugin-syntax-object-rest-spread': 7.8.3(@babel/core@7.24.5)
+      '@babel/plugin-syntax-optional-catch-binding': 7.8.3(@babel/core@7.24.5)
+      '@babel/plugin-syntax-optional-chaining': 7.8.3(@babel/core@7.24.5)
+      '@babel/plugin-syntax-top-level-await': 7.14.5(@babel/core@7.24.5)
     optional: true
 
   babel-preset-current-node-syntax@1.0.1(@babel/core@7.24.6):
@@ -12826,11 +12800,11 @@ snapshots:
       '@babel/plugin-syntax-optional-chaining': 7.8.3(@babel/core@7.24.6)
       '@babel/plugin-syntax-top-level-await': 7.14.5(@babel/core@7.24.6)
 
-  babel-preset-jest@29.6.3(@babel/core@7.24.3):
+  babel-preset-jest@29.6.3(@babel/core@7.24.5):
     dependencies:
-      '@babel/core': 7.24.3
+      '@babel/core': 7.24.5
       babel-plugin-jest-hoist: 29.6.3
-      babel-preset-current-node-syntax: 1.0.1(@babel/core@7.24.3)
+      babel-preset-current-node-syntax: 1.0.1(@babel/core@7.24.5)
     optional: true
 
   babel-preset-jest@29.6.3(@babel/core@7.24.6):
@@ -15181,10 +15155,6 @@ snapshots:
 
   obuf@1.1.2: {}
 
-  oidc-client-ts@3.0.1:
-    dependencies:
-      jwt-decode: 4.0.0
-
   oidc-token-hash@5.0.3: {}
 
   on-exit-leak-free@2.1.2: {}
@@ -15290,10 +15260,6 @@ snapshots:
     dependencies:
       leac: 0.6.0
       peberminta: 0.9.0
-
-  passport-custom@1.1.1:
-    dependencies:
-      passport-strategy: 1.0.0
 
   passport-jwt@4.0.1:
     dependencies:
@@ -16549,7 +16515,7 @@ snapshots:
 
   ts-interface-checker@0.1.13: {}
 
-  ts-jest@29.1.5(@babel/core@7.24.3)(@jest/transform@29.7.0)(@jest/types@29.6.3)(babel-jest@29.7.0(@babel/core@7.24.3))(jest@29.7.0(@types/node@20.14.9)(ts-node@10.9.2(@swc/core@1.5.25(@swc/helpers@0.5.11))(@types/node@20.14.9)(typescript@5.5.2)))(typescript@5.5.2):
+  ts-jest@29.1.5(@babel/core@7.24.5)(@jest/transform@29.7.0)(@jest/types@29.6.3)(babel-jest@29.7.0(@babel/core@7.24.5))(jest@29.7.0(@types/node@20.14.9)(ts-node@10.9.2(@swc/core@1.5.25(@swc/helpers@0.5.11))(@types/node@20.14.9)(typescript@5.5.2)))(typescript@5.5.2):
     dependencies:
       bs-logger: 0.2.6
       fast-json-stable-stringify: 2.1.0
@@ -16562,10 +16528,10 @@ snapshots:
       typescript: 5.5.2
       yargs-parser: 21.1.1
     optionalDependencies:
-      '@babel/core': 7.24.3
+      '@babel/core': 7.24.5
       '@jest/transform': 29.7.0
       '@jest/types': 29.6.3
-      babel-jest: 29.7.0(@babel/core@7.24.3)
+      babel-jest: 29.7.0(@babel/core@7.24.5)
 
   ts-loader@9.5.1(typescript@5.5.2)(webpack@5.91.0(@swc/core@1.3.101(@swc/helpers@0.5.11))(esbuild@0.19.11)):
     dependencies:
