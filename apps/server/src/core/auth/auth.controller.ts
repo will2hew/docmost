@@ -34,11 +34,11 @@ export class AuthController {
   @Get('cb')
   @HttpCode(HttpStatus.TEMPORARY_REDIRECT)
   async callback(@Req() req: FastifyRequest, @Res() reply: FastifyReply) {
-    const token = await this.authService.oidcLogin(req, reply);
+    const token = await this.authService.oidcLogin(req);
 
     this.setCookieOnReply(reply, token);
 
-    return reply.redirect('/home');
+    return reply.redirect(`${this.environmentService.getAppUrl()}/home`);
   }
 
   @Get('oauth-redirect')
@@ -47,19 +47,19 @@ export class AuthController {
     @AuthWorkspace() workspace: Workspace,
     @Res() reply: FastifyReply,
   ) {
-    const redirectUri = 'http://localhost:5173/api/auth/cb';
+    const redirectUri = `${this.environmentService.getAppUrl()}/api/auth/cb`;
 
     if (!workspace.oidcIssuerUrl) {
-      return reply.redirect('/login');
+      return reply.redirect(`${this.environmentService.getAppUrl()}/login`);
     }
 
     const issuer = await Issuer.discover(workspace.oidcIssuerUrl);
 
     if (!issuer.metadata.authorization_endpoint || !workspace.oidcClientId) {
-      return reply.redirect('/login');
+      return reply.redirect(`${this.environmentService.getAppUrl()}/login`);
     }
 
-    const redirectUrl =
+    const authRedirect =
       `${issuer.metadata.authorization_endpoint}` +
       `?response_type=code` +
       `&client_id=${workspace.oidcClientId}` +
@@ -67,7 +67,7 @@ export class AuthController {
       `&scope=openid profile email` +
       `&state=${workspace.id}`;
 
-    return reply.redirect(redirectUrl);
+    return reply.redirect(authRedirect);
   }
 
   @Get('oidc-config')

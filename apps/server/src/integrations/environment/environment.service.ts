@@ -10,10 +10,11 @@ export class EnvironmentService {
   }
 
   getAppUrl(): string {
-    return (
-      this.configService.get<string>('APP_URL') ||
-      'http://localhost:' + this.getPort()
-    );
+    if (this.getNodeEnv() === 'production') {
+      return `${this.configService.get<string>('APP_URL')}`;
+    } else {
+      return 'http://localhost:5173';
+    }
   }
 
   getPort(): number {
@@ -41,14 +42,6 @@ export class EnvironmentService {
 
   getStorageDriver(): string {
     return this.configService.get<string>('STORAGE_DRIVER', 'local');
-  }
-
-  getAwsS3AccessKeyId(): string {
-    return this.configService.get<string>('AWS_S3_ACCESS_KEY_ID');
-  }
-
-  getAwsS3SecretAccessKey(): string {
-    return this.configService.get<string>('AWS_S3_SECRET_ACCESS_KEY');
   }
 
   getAwsS3Region(): string {

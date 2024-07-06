@@ -24,6 +24,7 @@ import { User } from '@docmost/db/types/entity.types';
 import { repl } from '@nestjs/core';
 import { WorkspaceService } from 'src/core/workspace/services/workspace.service';
 import { GroupUserRepo } from '@docmost/db/repos/group/group-user.repo';
+import { EnvironmentService } from 'src/integrations/environment/environment.service';
 
 @Injectable()
 export class AuthService {
@@ -35,9 +36,10 @@ export class AuthService {
     private workspaceRepo: WorkspaceRepo,
     private groupUserRepo: GroupUserRepo,
     private workspaceService: WorkspaceService,
+    private environmentService: EnvironmentService,
   ) {}
 
-  async oidcLogin(req: FastifyRequest, reply: FastifyReply) {
+  async oidcLogin(req: FastifyRequest) {
     const querySchema = z.object({
       code: z.string(),
       state: z.string(),
@@ -66,12 +68,12 @@ export class AuthService {
       client_secret: workspace.oidcClientSecret,
     });
 
+    const redirectUri = `${this.environmentService.getAppUrl()}/api/auth/cb`;
+
     const params = client.callbackParams(req.raw);
-    const tokenSet = await client.callback(
-      'http://localhost:5173/api/auth/cb',
-      params,
-      { state: workspace.id },
-    );
+    const tokenSet = await client.callback(redirectUri, params, {
+      state: workspace.id,
+    });
 
     const name = tokenSet.claims().name;
     const email = tokenSet.claims().email;
