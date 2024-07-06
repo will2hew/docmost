@@ -8,6 +8,7 @@ import {
   IconUsersGroup,
   IconSpaces,
   IconBrush,
+  IconLock,
 } from "@tabler/icons-react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import classes from "./settings.module.css";
@@ -46,6 +47,7 @@ const groupedData: DataGroup[] = [
       },
       { label: "Groups", icon: IconUsersGroup, path: "/settings/groups" },
       { label: "Spaces", icon: IconSpaces, path: "/settings/spaces" },
+      { label: "Security", icon: IconLock, path: "/settings/security" },
     ],
   },
 ];
