@@ -50,13 +50,13 @@ export class AuthController {
     const redirectUri = `${this.environmentService.getAppUrl()}/api/auth/cb`;
 
     if (!workspace.oidcIssuerUrl) {
-      return reply.redirect('/login');
+      return reply.redirect(`${this.environmentService.getAppUrl()}/login`);
     }
 
     const issuer = await Issuer.discover(workspace.oidcIssuerUrl);
 
     if (!issuer.metadata.authorization_endpoint || !workspace.oidcClientId) {
-      return reply.redirect('/login');
+      return reply.redirect(`${this.environmentService.getAppUrl()}/login`);
     }
 
     const authRedirect =
