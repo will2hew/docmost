@@ -1,7 +1,3 @@
-export interface IOIDCConfig {
-  enabled: boolean;
-  buttonName: string;
-}
 export interface IWorkspace {
   id: string;
   name: string;
