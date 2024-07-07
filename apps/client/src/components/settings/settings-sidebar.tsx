@@ -12,6 +12,7 @@ import {
 } from "@tabler/icons-react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import classes from "./settings.module.css";
+import useUserRole from "@/hooks/use-user-role";
 
 interface DataItem {
   label: string;
@@ -47,7 +48,6 @@ const groupedData: DataGroup[] = [
       },
       { label: "Groups", icon: IconUsersGroup, path: "/settings/groups" },
       { label: "Spaces", icon: IconSpaces, path: "/settings/spaces" },
-      { label: "Security", icon: IconLock, path: "/settings/security" },
     ],
   },
 ];
@@ -57,9 +57,21 @@ export default function SettingsSidebar() {
   const [active, setActive] = useState(location.pathname);
   const navigate = useNavigate();
 
+  const { isAdmin } = useUserRole();
+
   useEffect(() => {
     setActive(location.pathname);
   }, [location.pathname]);
+
+  useEffect(() => {
+    if (isAdmin) {
+      groupedData[1].items.push({
+        label: "Security",
+        icon: IconLock,
+        path: "/settings/security",
+      });
+    }
+  }, []);
 
   const menuItems = groupedData.map((group) => (
     <div key={group.heading}>
