@@ -74,7 +74,7 @@ export default function PageEditor({ pageId, editable }: PageEditorProps) {
       name: documentName,
       url: collaborationURL,
       document: ydoc,
-      token: token?.accessToken,
+      token: "notoken",
       connect: false,
     });
 

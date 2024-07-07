@@ -66,7 +66,7 @@ async function bootstrap() {
   app.useGlobalInterceptors(new TransformHttpResponseInterceptor());
   app.enableShutdownHooks();
 
-  app.register(helmet, { global: true });
+  // app.register(helmet, { global: true });
 
   await app.listen(process.env.PORT || 3000, '0.0.0.0');
 }
