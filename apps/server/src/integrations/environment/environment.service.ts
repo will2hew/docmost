@@ -17,6 +17,16 @@ export class EnvironmentService {
     }
   }
 
+  isHttps(): boolean {
+    const appUrl = this.configService.get<string>('APP_URL');
+    try {
+      const url = new URL(appUrl);
+      return url.protocol === 'https:';
+    } catch (error) {
+      return false;
+    }
+  }
+
   getPort(): number {
     return parseInt(this.configService.get<string>('PORT', '3000'));
   }
@@ -44,6 +54,18 @@ export class EnvironmentService {
     return this.configService.get<string>('STORAGE_DRIVER', 'local');
   }
 
+  getFileUploadSizeLimit(): string {
+    return this.configService.get<string>('FILE_UPLOAD_SIZE_LIMIT', '50mb');
+  }
+
+  getAwsS3AccessKeyId(): string {
+    return this.configService.get<string>('AWS_S3_ACCESS_KEY_ID');
+  }
+
+  getAwsS3SecretAccessKey(): string {
+    return this.configService.get<string>('AWS_S3_SECRET_ACCESS_KEY');
+  }
+
   getAwsS3Region(): string {
     return this.configService.get<string>('AWS_S3_REGION');
   }
@@ -54,6 +76,10 @@ export class EnvironmentService {
 
   getAwsS3Endpoint(): string {
     return this.configService.get<string>('AWS_S3_ENDPOINT');
+  }
+
+  getAwsS3ForcePathStyle(): boolean {
+    return this.configService.get<boolean>('AWS_S3_FORCE_PATH_STYLE');
   }
 
   getAwsS3Url(): string {
@@ -80,6 +106,20 @@ export class EnvironmentService {
     return parseInt(this.configService.get<string>('SMTP_PORT'));
   }
 
+  getSmtpSecure(): boolean {
+    const secure = this.configService
+      .get<string>('SMTP_SECURE', 'false')
+      .toLowerCase();
+    return secure === 'true';
+  }
+
+  getSmtpIgnoreTLS(): boolean {
+    const ignoretls = this.configService
+      .get<string>('SMTP_IGNORETLS', 'false')
+      .toLowerCase();
+    return ignoretls === 'true';
+  }
+
   getSmtpUsername(): string {
     return this.configService.get<string>('SMTP_USERNAME');
   }
@@ -92,6 +132,10 @@ export class EnvironmentService {
     return this.configService.get<string>('POSTMARK_TOKEN');
   }
 
+  getDrawioUrl(): string {
+    return this.configService.get<string>('DRAWIO_URL');
+  }
+
   isCloud(): boolean {
     const cloudConfig = this.configService
       .get<string>('CLOUD', 'false')
@@ -101,5 +145,16 @@ export class EnvironmentService {
 
   isSelfHosted(): boolean {
     return !this.isCloud();
+  }
+
+  getCollabUrl(): string {
+    return this.configService.get<string>('COLLAB_URL');
+  }
+
+  isCollabDisableRedis(): boolean {
+    const isStandalone = this.configService
+      .get<string>('COLLAB_DISABLE_REDIS', 'false')
+      .toLowerCase();
+    return isStandalone === 'true';
   }
 }

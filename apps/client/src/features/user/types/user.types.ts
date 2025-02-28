@@ -6,6 +6,13 @@ export interface IUser {
   email: string;
   avatarUrl: string;
   timezone: string;
+  settings: IUserSettings;
+  invitedById: string;
+  lastLoginAt: string;
+  lastActiveAt: Date;
+  locale: string;
+  createdAt: Date;
+  updatedAt: Date;
   role: string;
   workspaceId: string;
 

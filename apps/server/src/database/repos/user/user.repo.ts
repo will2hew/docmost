@@ -6,15 +6,11 @@ import { hashPassword } from '../../../common/helpers';
 import { dbOrTx } from '@docmost/db/utils';
 import {
   InsertableUser,
-  Space,
   UpdatableUser,
   User,
 } from '@docmost/db/types/entity.types';
 import { PaginationOptions } from '../../pagination/pagination-options';
-import {
-  executeWithPagination,
-  PaginationResult,
-} from '@docmost/db/pagination/pagination';
+import { executeWithPagination } from '@docmost/db/pagination/pagination';
 import { sql } from 'kysely';
 
 @Injectable()
@@ -66,7 +62,7 @@ export class UserRepo {
       .selectFrom('users')
       .select(this.baseFields)
       .$if(includePassword, (qb) => qb.select('password'))
-      .where('email', '=', email)
+      .where(sql`LOWER(email)`, '=', sql`LOWER(${email})`)
       .where('workspaceId', '=', workspaceId)
       .executeTakeFirst();
   }
@@ -103,12 +99,11 @@ export class UserRepo {
     trx?: KyselyTransaction,
   ): Promise<User> {
     const user: InsertableUser = {
-      name: insertableUser.name || insertableUser.email.toLowerCase(),
+      name:
+        insertableUser.name || insertableUser.email.split('@')[0].toLowerCase(),
       email: insertableUser.email.toLowerCase(),
-      password: insertableUser.password
-        ? await hashPassword(insertableUser.password)
-        : undefined,
-      locale: 'en',
+      password: await hashPassword(insertableUser.password),
+      locale: 'en-US',
       role: insertableUser?.role,
       lastLoginAt: new Date(),
       workspaceId: insertableUser.workspaceId,
@@ -117,7 +112,7 @@ export class UserRepo {
     const db = dbOrTx(this.db, trx);
     return db
       .insertInto('users')
-      .values(user)
+      .values({ ...insertableUser, ...user })
       .returningAll()
       .executeTakeFirst();
   }

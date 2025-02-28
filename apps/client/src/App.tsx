@@ -11,51 +11,18 @@ import Groups from "@/pages/settings/group/groups";
 import GroupInfo from "./pages/settings/group/group-info";
 import Spaces from "@/pages/settings/space/spaces.tsx";
 import { Error404 } from "@/components/ui/error-404.tsx";
-import { useQuerySubscription } from "@/features/websocket/use-query-subscription.ts";
-import { useAtom, useAtomValue } from "jotai";
-import { socketAtom } from "@/features/websocket/atoms/socket-atom.ts";
-import { useTreeSocket } from "@/features/websocket/use-tree-socket.ts";
-import { useEffect } from "react";
-import { io } from "socket.io-client";
-import { authTokensAtom } from "@/features/auth/atoms/auth-tokens-atom.ts";
-import { SOCKET_URL } from "@/features/websocket/types";
 import AccountPreferences from "@/pages/settings/account/account-preferences.tsx";
 import SpaceHome from "@/pages/space/space-home.tsx";
 import PageRedirect from "@/pages/page/page-redirect.tsx";
 import Layout from "@/components/layouts/global/layout.tsx";
 import { ErrorBoundary } from "react-error-boundary";
 import InviteSignup from "@/pages/auth/invite-signup.tsx";
+import ForgotPassword from "@/pages/auth/forgot-password.tsx";
+import PasswordReset from "./pages/auth/password-reset";
+import { useTranslation } from "react-i18next";
 
 export default function App() {
-  const [, setSocket] = useAtom(socketAtom);
-  const authToken = useAtomValue(authTokensAtom);
-
-  useEffect(() => {
-    if (!authToken?.accessToken) {
-      return;
-    }
-    const newSocket = io(SOCKET_URL, {
-      transports: ["websocket"],
-      auth: {
-        token: authToken.accessToken,
-      },
-    });
-
-    // @ts-ignore
-    setSocket(newSocket);
-
-    newSocket.on("connect", () => {
-      console.log("ws connected");
-    });
-
-    return () => {
-      console.log("ws disconnected");
-      newSocket.disconnect();
-    };
-  }, [authToken?.accessToken]);
-
-  useQuerySubscription();
-  useTreeSocket();
+  const { t } = useTranslation();
 
   return (
     <>
@@ -64,6 +31,8 @@ export default function App() {
         <Route path={"/login"} element={<LoginPage />} />
         <Route path={"/invites/:invitationId"} element={<InviteSignup />} />
         <Route path={"/setup/register"} element={<SetupWorkspace />} />
+        <Route path={"/forgot-password"} element={<ForgotPassword />} />
+        <Route path={"/password-reset"} element={<PasswordReset />} />
 
         <Route path={"/p/:pageSlug"} element={<PageRedirect />} />
 
@@ -75,7 +44,7 @@ export default function App() {
             path={"/s/:spaceSlug/p/:pageSlug"}
             element={
               <ErrorBoundary
-                fallback={<>Failed to load page. An error occurred.</>}
+                fallback={<>{t("Failed to load page. An error occurred.")}</>}
               >
                 <Page />
               </ErrorBoundary>

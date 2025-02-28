@@ -27,19 +27,29 @@ export const mailDriverConfigProvider = {
     const driver = environmentService.getMailDriver().toLocaleLowerCase();
 
     switch (driver) {
-      case MailOption.SMTP:
+      case MailOption.SMTP: {
+        let auth = undefined;
+        if (
+          environmentService.getSmtpUsername() &&
+          environmentService.getSmtpPassword()
+        ) {
+          auth = {
+            user: environmentService.getSmtpUsername(),
+            pass: environmentService.getSmtpPassword(),
+          };
+        }
         return {
           driver,
           config: {
             host: environmentService.getSmtpHost(),
             port: environmentService.getSmtpPort(),
             connectionTimeout: 30 * 1000, // 30 seconds
-            auth: {
-              user: environmentService.getSmtpUsername(),
-              pass: environmentService.getSmtpPassword(),
-            },
+            auth,
+            secure: environmentService.getSmtpSecure(),
+            ignoreTLS: environmentService.getSmtpIgnoreTLS(),
           } as SMTPTransport.Options,
         };
+      }
 
       case MailOption.SES:
         return {

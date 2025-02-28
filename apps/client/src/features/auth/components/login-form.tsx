@@ -1,4 +1,3 @@
-import * as React from "react";
 import * as z from "zod";
 import { useForm, zodResolver } from "@mantine/form";
 import useAuth from "@/features/auth/hooks/use-auth";
@@ -10,11 +9,13 @@ import {
   Button,
   PasswordInput,
   Box,
+  Anchor,
 } from "@mantine/core";
 import classes from "./auth.module.css";
 import { useRedirectIfAuthenticated } from "@/features/auth/hooks/use-redirect-if-authenticated.ts";
-import { useEffect } from "react";
-import api from "@/lib/api-client";
+import { Link, useNavigate } from "react-router-dom";
+import APP_ROUTE from "@/lib/app-route.ts";
+import { useTranslation } from "react-i18next";
 
 const formSchema = z.object({
   email: z
@@ -25,6 +26,7 @@ const formSchema = z.object({
 });
 
 export function LoginForm() {
+  const { t } = useTranslation();
   const { signIn, isLoading } = useAuth();
 
   const [buttonName, setButtonName] = React.useState<string>("Login with OIDC");
@@ -63,28 +65,29 @@ export function LoginForm() {
     <Container size={420} my={40} className={classes.container}>
       <Box p="xl" mt={200}>
         <Title order={2} ta="center" fw={500} mb="md">
-          Login
+          {t("Login")}
         </Title>
 
         <form onSubmit={form.onSubmit(onSubmit)}>
           <TextInput
             id="email"
             type="email"
-            label="Email"
+            label={t("Email")}
             placeholder="email@example.com"
             variant="filled"
             {...form.getInputProps("email")}
           />
 
           <PasswordInput
-            label="Password"
-            placeholder="Your password"
+            label={t("Password")}
+            placeholder={t("Your password")}
             variant="filled"
             mt="md"
             {...form.getInputProps("password")}
           />
+
           <Button type="submit" fullWidth mt="xl" loading={isLoading}>
-            Login
+            {t("Sign In")}
           </Button>
           {oidcEnabled && (
             <Button
@@ -97,6 +100,15 @@ export function LoginForm() {
             </Button>
           )}
         </form>
+
+        <Anchor
+          to={APP_ROUTE.AUTH.FORGOT_PASSWORD}
+          component={Link}
+          underline="never"
+          size="sm"
+        >
+          {t("Forgot your password?")}
+        </Anchor>
       </Box>
     </Container>
   );

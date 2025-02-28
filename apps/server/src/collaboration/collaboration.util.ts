@@ -10,28 +10,41 @@ import { Typography } from '@tiptap/extension-typography';
 import { TextStyle } from '@tiptap/extension-text-style';
 import { Color } from '@tiptap/extension-color';
 import { Youtube } from '@tiptap/extension-youtube';
+import Table from '@tiptap/extension-table';
+import TableHeader from '@tiptap/extension-table-header';
 import {
   Callout,
   Comment,
+  CustomCodeBlock,
   Details,
   DetailsContent,
   DetailsSummary,
   LinkExtension,
   MathBlock,
   MathInline,
-  Table,
   TableCell,
-  TableHeader,
   TableRow,
   TiptapImage,
   TiptapVideo,
   TrailingNode,
+  Attachment,
+  Drawio,
+  Excalidraw,
+  Embed,
+  Mention
 } from '@docmost/editor-ext';
-import { generateHTML, generateJSON } from '@tiptap/html';
-import { generateText, JSONContent } from '@tiptap/core';
+import { generateText, getSchema, JSONContent } from '@tiptap/core';
+import { generateHTML } from '../common/helpers/prosemirror/html';
+// @tiptap/html library works best for generating prosemirror json state but not HTML
+// see: https://github.com/ueberdosis/tiptap/issues/5352
+// see:https://github.com/ueberdosis/tiptap/issues/4089
+import { generateJSON } from '@tiptap/html';
+import { Node } from '@tiptap/pm/model';
 
 export const tiptapExtensions = [
-  StarterKit,
+  StarterKit.configure({
+    codeBlock: false,
+  }),
   Comment,
   TextAlign,
   TaskList,
@@ -58,9 +71,15 @@ export const tiptapExtensions = [
   TiptapImage,
   TiptapVideo,
   Callout,
+  Attachment,
+  CustomCodeBlock,
+  Drawio,
+  Excalidraw,
+  Embed,
+  Mention
 ] as any;
 
-export function jsonToHtml(tiptapJson: JSONContent) {
+export function jsonToHtml(tiptapJson: any) {
   return generateHTML(tiptapJson, tiptapExtensions);
 }
 
@@ -70,6 +89,10 @@ export function htmlToJson(html: string) {
 
 export function jsonToText(tiptapJson: JSONContent) {
   return generateText(tiptapJson, tiptapExtensions);
+}
+
+export function jsonToNode(tiptapJson: JSONContent) {
+  return Node.fromJSON(getSchema(tiptapExtensions), tiptapJson);
 }
 
 export function getPageId(documentName: string) {

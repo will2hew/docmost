@@ -4,14 +4,14 @@ import { TextAlign } from "@tiptap/extension-text-align";
 import { TaskList } from "@tiptap/extension-task-list";
 import { TaskItem } from "@tiptap/extension-task-item";
 import { Underline } from "@tiptap/extension-underline";
-import { Link } from "@tiptap/extension-link";
 import { Superscript } from "@tiptap/extension-superscript";
 import SubScript from "@tiptap/extension-subscript";
 import { Highlight } from "@tiptap/extension-highlight";
 import { Typography } from "@tiptap/extension-typography";
 import { TextStyle } from "@tiptap/extension-text-style";
 import { Color } from "@tiptap/extension-color";
-import CodeBlockLowlight from "@tiptap/extension-code-block-lowlight";
+import Table from "@tiptap/extension-table";
+import TableHeader from "@tiptap/extension-table-header";
 import SlashCommand from "@/features/editor/extensions/slash-command";
 import { Collaboration } from "@tiptap/extension-collaboration";
 import { CollaborationCursor } from "@tiptap/extension-collaboration-cursor";
@@ -23,8 +23,6 @@ import {
   DetailsSummary,
   MathBlock,
   MathInline,
-  Table,
-  TableHeader,
   TableCell,
   TableRow,
   TrailingNode,
@@ -33,6 +31,12 @@ import {
   TiptapVideo,
   LinkExtension,
   Selection,
+  Attachment,
+  CustomCodeBlock,
+  Drawio,
+  Excalidraw,
+  Embed,
+  Mention,
 } from "@docmost/editor-ext";
 import {
   randomElement,
@@ -41,13 +45,43 @@ import {
 import { IUser } from "@/features/user/types/user.types.ts";
 import MathInlineView from "@/features/editor/components/math/math-inline.tsx";
 import MathBlockView from "@/features/editor/components/math/math-block.tsx";
-import GlobalDragHandle from "@/features/editor/extensions/drag-handle.ts";
+import GlobalDragHandle from "tiptap-extension-global-drag-handle";
 import { Youtube } from "@tiptap/extension-youtube";
 import ImageView from "@/features/editor/components/image/image-view.tsx";
 import CalloutView from "@/features/editor/components/callout/callout-view.tsx";
 import { common, createLowlight } from "lowlight";
 import VideoView from "@/features/editor/components/video/video-view.tsx";
+import AttachmentView from "@/features/editor/components/attachment/attachment-view.tsx";
+import CodeBlockView from "@/features/editor/components/code-block/code-block-view.tsx";
+import DrawioView from "../components/drawio/drawio-view";
+import ExcalidrawView from "@/features/editor/components/excalidraw/excalidraw-view.tsx";
+import EmbedView from "@/features/editor/components/embed/embed-view.tsx";
+import plaintext from "highlight.js/lib/languages/plaintext";
+import powershell from "highlight.js/lib/languages/powershell";
+import elixir from "highlight.js/lib/languages/elixir";
+import erlang from "highlight.js/lib/languages/erlang";
+import dockerfile from "highlight.js/lib/languages/dockerfile";
+import clojure from "highlight.js/lib/languages/clojure";
+import fortran from "highlight.js/lib/languages/fortran";
+import haskell from "highlight.js/lib/languages/haskell";
+import scala from "highlight.js/lib/languages/scala";
+import mentionRenderItems from "@/features/editor/components/mention/mention-suggestion.ts";
+import { ReactNodeViewRenderer } from "@tiptap/react";
+import MentionView from "@/features/editor/components/mention/mention-view.tsx";
+import i18n from "@/i18n.ts";
+import { MarkdownClipboard } from "@/features/editor/extensions/markdown-clipboard.ts";
+
 const lowlight = createLowlight(common);
+lowlight.register("mermaid", plaintext);
+lowlight.register("powershell", powershell);
+lowlight.register("powershell", powershell);
+lowlight.register("erlang", erlang);
+lowlight.register("elixir", elixir);
+lowlight.register("dockerfile", dockerfile);
+lowlight.register("clojure", clojure);
+lowlight.register("fortran", fortran);
+lowlight.register("haskell", haskell);
+lowlight.register("scala", scala);
 
 export const mainExtensions = [
   StarterKit.configure({
@@ -57,18 +91,26 @@ export const mainExtensions = [
       color: "#70CFF8",
     },
     codeBlock: false,
+    code: {
+      HTMLAttributes: {
+        spellcheck: false,
+      },
+    },
   }),
   Placeholder.configure({
     placeholder: ({ node }) => {
       if (node.type.name === "heading") {
-        return `Heading ${node.attrs.level}`;
+        return i18n.t("Heading {{level}}", { level: node.attrs.level });
       }
       if (node.type.name === "detailsSummary") {
-        return "Toggle title";
+        return i18n.t("Toggle title");
       }
-      return 'Write anything. Enter "/" for commands';
+      if (node.type.name === "paragraph") {
+        return i18n.t('Write anything. Enter "/" for commands');
+      }
     },
     includeChildren: true,
+    showOnlyWhenEditable: true,
   }),
   TextAlign.configure({ types: ["heading", "paragraph"] }),
   TaskList,
@@ -95,7 +137,28 @@ export const mainExtensions = [
       class: "comment-mark",
     },
   }),
-  Table,
+  Mention.configure({
+    suggestion: {
+      allowSpaces: true,
+      items: () => {
+        return [];
+      },
+      // @ts-ignore
+      render: mentionRenderItems,
+    },
+    HTMLAttributes: {
+      class: "mention",
+    },
+  }).extend({
+    addNodeView() {
+      return ReactNodeViewRenderer(MentionView);
+    },
+  }),
+  Table.configure({
+    resizable: true,
+    lastColumnResizable: false,
+    allowTableNodeSelection: true,
+  }),
   TableRow,
   TableCell,
   TableHeader,
@@ -109,6 +172,7 @@ export const mainExtensions = [
   DetailsSummary,
   DetailsContent,
   Youtube.configure({
+    addPasteHandler: false,
     controls: true,
     nocookie: true,
   }),
@@ -122,10 +186,29 @@ export const mainExtensions = [
   Callout.configure({
     view: CalloutView,
   }),
-  CodeBlockLowlight.configure({
+  CustomCodeBlock.configure({
+    view: CodeBlockView,
     lowlight,
+    HTMLAttributes: {
+      spellcheck: false,
+    },
   }),
   Selection,
+  Attachment.configure({
+    view: AttachmentView,
+  }),
+  Drawio.configure({
+    view: DrawioView,
+  }),
+  Excalidraw.configure({
+    view: ExcalidrawView,
+  }),
+  Embed.configure({
+    view: EmbedView,
+  }),
+  MarkdownClipboard.configure({
+    transformPastedText: true,
+  }),
 ] as any;
 
 type CollabExtensions = (provider: HocuspocusProvider, user: IUser) => any[];

@@ -10,21 +10,25 @@ import { TokenService } from './token.service';
 import { SignupService } from './signup.service';
 import { CreateAdminUserDto } from '../dto/create-admin-user.dto';
 import { UserRepo } from '@docmost/db/repos/user/user.repo';
-import { comparePasswordHash, hashPassword } from '../../../common/helpers';
+import {
+  comparePasswordHash,
+  hashPassword,
+  nanoIdGen,
+} from '../../../common/helpers';
 import { ChangePasswordDto } from '../dto/change-password.dto';
 import { MailService } from '../../../integrations/mail/mail.service';
 import ChangePasswordEmail from '@docmost/transactional/emails/change-password-email';
-import { FastifyRequest } from 'fastify';
-import { Issuer } from 'openid-client';
-import { WorkspaceRepo } from '@docmost/db/repos/workspace/workspace.repo';
-import { z } from 'zod';
-import { UserRole } from 'src/common/helpers/types/permission';
-import { WorkspaceService } from 'src/core/workspace/services/workspace.service';
-import { GroupUserRepo } from '@docmost/db/repos/group/group-user.repo';
+import { ForgotPasswordDto } from '../dto/forgot-password.dto';
+import ForgotPasswordEmail from '@docmost/transactional/emails/forgot-password-email';
+import { UserTokenRepo } from '@docmost/db/repos/user-token/user-token.repo';
+import { PasswordResetDto } from '../dto/password-reset.dto';
+import { UserToken } from '@docmost/db/types/entity.types';
+import { UserTokenType } from '../auth.constants';
+import { KyselyDB } from '@docmost/db/types/kysely.types';
+import { InjectKysely } from 'nestjs-kysely';
+import { executeTx } from '@docmost/db/utils';
+import { VerifyUserTokenDto } from '../dto/verify-user-token.dto';
 import { EnvironmentService } from 'src/integrations/environment/environment.service';
-import { UpdateOidcConfigDto } from '../dto/update-oidc.dto';
-import { OidcConfigDto } from '../dto/oidc-config.dto';
-import { Workspace } from '@docmost/db/types/entity.types';
 
 @Injectable()
 export class AuthService {
@@ -32,11 +36,10 @@ export class AuthService {
     private signupService: SignupService,
     private tokenService: TokenService,
     private userRepo: UserRepo,
+    private userTokenRepo: UserTokenRepo,
     private mailService: MailService,
-    private workspaceRepo: WorkspaceRepo,
-    private groupUserRepo: GroupUserRepo,
-    private workspaceService: WorkspaceService,
     private environmentService: EnvironmentService,
+    @InjectKysely() private readonly db: KyselyDB,
   ) {}
 
   async updateApprovedDomains(
@@ -195,13 +198,11 @@ export class AuthService {
 
   async register(createUserDto: CreateUserDto, workspaceId: string) {
     const user = await this.signupService.signup(createUserDto, workspaceId);
-
     return this.tokenService.generateAccessToken(user);
   }
 
   async setup(createAdminUserDto: CreateAdminUserDto) {
     const user = await this.signupService.initialSetup(createAdminUserDto);
-
     return this.tokenService.generateAccessToken(user);
   }
 
@@ -242,5 +243,115 @@ export class AuthService {
       subject: 'Your password has been changed',
       template: emailTemplate,
     });
+  }
+
+  async forgotPassword(
+    forgotPasswordDto: ForgotPasswordDto,
+    workspaceId: string,
+  ): Promise<void> {
+    const user = await this.userRepo.findByEmail(
+      forgotPasswordDto.email,
+      workspaceId,
+    );
+
+    if (!user) {
+      return;
+    }
+
+    const token = nanoIdGen(16);
+    const resetLink = `${this.environmentService.getAppUrl()}/password-reset?token=${token}`;
+
+    await this.userTokenRepo.insertUserToken({
+      token: token,
+      userId: user.id,
+      workspaceId: user.workspaceId,
+      expiresAt: new Date(new Date().getTime() + 60 * 60 * 1000), // 1 hour
+      type: UserTokenType.FORGOT_PASSWORD,
+    });
+
+    const emailTemplate = ForgotPasswordEmail({
+      username: user.name,
+      resetLink: resetLink,
+    });
+
+    await this.mailService.sendToQueue({
+      to: user.email,
+      subject: 'Reset your password',
+      template: emailTemplate,
+    });
+  }
+
+  async passwordReset(passwordResetDto: PasswordResetDto, workspaceId: string) {
+    const userToken = await this.userTokenRepo.findById(
+      passwordResetDto.token,
+      workspaceId,
+    );
+
+    if (
+      !userToken ||
+      userToken.type !== UserTokenType.FORGOT_PASSWORD ||
+      userToken.expiresAt < new Date()
+    ) {
+      throw new BadRequestException('Invalid or expired token');
+    }
+
+    const user = await this.userRepo.findById(userToken.userId, workspaceId);
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
+    const newPasswordHash = await hashPassword(passwordResetDto.newPassword);
+
+    await executeTx(this.db, async (trx) => {
+      await this.userRepo.updateUser(
+        {
+          password: newPasswordHash,
+        },
+        user.id,
+        workspaceId,
+        trx,
+      );
+
+      await trx
+        .deleteFrom('userTokens')
+        .where('userId', '=', user.id)
+        .where('type', '=', UserTokenType.FORGOT_PASSWORD)
+        .execute();
+    });
+
+    const emailTemplate = ChangePasswordEmail({ username: user.name });
+    await this.mailService.sendToQueue({
+      to: user.email,
+      subject: 'Your password has been changed',
+      template: emailTemplate,
+    });
+
+    return this.tokenService.generateAccessToken(user);
+  }
+
+  async verifyUserToken(
+    userTokenDto: VerifyUserTokenDto,
+    workspaceId: string,
+  ): Promise<void> {
+    const userToken = await this.userTokenRepo.findById(
+      userTokenDto.token,
+      workspaceId,
+    );
+
+    if (
+      !userToken ||
+      userToken.type !== userTokenDto.type ||
+      userToken.expiresAt < new Date()
+    ) {
+      throw new BadRequestException('Invalid or expired token');
+    }
+  }
+
+  async getCollabToken(userId: string, workspaceId: string) {
+    const token = await this.tokenService.generateCollabToken(
+      userId,
+      workspaceId,
+    );
+    return { token };
   }
 }

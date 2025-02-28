@@ -11,6 +11,8 @@ import {
   GroupUsers,
   SpaceMembers,
   WorkspaceInvitations,
+  UserTokens,
+  Backlinks,
 } from './db';
 
 // Workspace
@@ -71,3 +73,13 @@ export type UpdatableComment = Updateable<Omit<Comments, 'id'>>;
 export type Attachment = Selectable<Attachments>;
 export type InsertableAttachment = Insertable<Attachments>;
 export type UpdatableAttachment = Updateable<Omit<Attachments, 'id'>>;
+
+// User Token
+export type UserToken = Selectable<UserTokens>;
+export type InsertableUserToken = Insertable<UserTokens>;
+export type UpdatableUserToken = Updateable<Omit<UserTokens, 'id'>>;
+
+// Backlink
+export type Backlink = Selectable<Backlinks>;
+export type InsertableBacklink = Insertable<Backlink>;
+export type UpdatableBacklink = Updateable<Omit<Backlink, 'id'>>;

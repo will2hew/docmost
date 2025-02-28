@@ -1,4 +1,5 @@
 import {
+  keepPreviousData,
   useMutation,
   useQuery,
   useQueryClient,
@@ -20,23 +21,24 @@ import {
   removeSpaceMember,
   createSpace,
   updateSpace,
+  deleteSpace,
 } from "@/features/space/services/space-service.ts";
 import { notifications } from "@mantine/notifications";
-import { IPagination } from "@/lib/types.ts";
+import { IPagination, QueryParams } from "@/lib/types.ts";
 
-export function useGetSpacesQuery(): UseQueryResult<
-  IPagination<ISpace>,
-  Error
-> {
+export function useGetSpacesQuery(
+  params?: QueryParams,
+): UseQueryResult<IPagination<ISpace>, Error> {
   return useQuery({
-    queryKey: ["spaces"],
-    queryFn: () => getSpaces(),
+    queryKey: ["spaces", params],
+    queryFn: () => getSpaces(params),
+    placeholderData: keepPreviousData,
   });
 }
 
 export function useSpaceQuery(spaceId: string): UseQueryResult<ISpace, Error> {
   return useQuery({
-    queryKey: ["spaces", spaceId],
+    queryKey: ["space", spaceId],
     queryFn: () => getSpaceById(spaceId),
     enabled: !!spaceId,
     staleTime: 5 * 60 * 1000,
@@ -65,7 +67,7 @@ export function useGetSpaceBySlugQuery(
   spaceId: string,
 ): UseQueryResult<ISpace, Error> {
   return useQuery({
-    queryKey: ["spaces", spaceId],
+    queryKey: ["space", spaceId],
     queryFn: () => getSpaceById(spaceId),
     enabled: !!spaceId,
     staleTime: 5 * 60 * 1000,
@@ -101,13 +103,45 @@ export function useUpdateSpaceMutation() {
   });
 }
 
+export function useDeleteSpaceMutation() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (data: Partial<ISpace>) => deleteSpace(data.id),
+    onSuccess: (data, variables) => {
+      notifications.show({ message: "Space deleted successfully" });
+
+      if (variables.slug) {
+        queryClient.removeQueries({
+          queryKey: ["space", variables.slug],
+          exact: true,
+        });
+      }
+
+      const spaces = queryClient.getQueryData(["spaces"]) as any;
+      if (spaces) {
+        spaces.items = spaces.items?.filter(
+          (space: ISpace) => space.id !== variables.id,
+        );
+        queryClient.setQueryData(["spaces"], spaces);
+      }
+    },
+    onError: (error) => {
+      const errorMessage = error["response"]?.data?.message;
+      notifications.show({ message: errorMessage, color: "red" });
+    },
+  });
+}
+
 export function useSpaceMembersQuery(
   spaceId: string,
+  params?: QueryParams,
 ): UseQueryResult<IPagination<ISpaceMember>, Error> {
   return useQuery({
-    queryKey: ["spaceMembers", spaceId],
-    queryFn: () => getSpaceMembers(spaceId),
+    queryKey: ["spaceMembers", spaceId, params],
+    queryFn: () => getSpaceMembers(spaceId, params),
     enabled: !!spaceId,
+    placeholderData: keepPreviousData,
   });
 }
 
@@ -136,7 +170,7 @@ export function useRemoveSpaceMemberMutation() {
     mutationFn: (data) => removeSpaceMember(data),
     onSuccess: (data, variables) => {
       notifications.show({ message: "Removed successfully" });
-      queryClient.refetchQueries({
+      queryClient.invalidateQueries({
         queryKey: ["spaceMembers", variables.spaceId],
       });
     },

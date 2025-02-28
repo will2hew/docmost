@@ -20,11 +20,22 @@
     outline: none;
   }
 
+  p {
+    margin-top: 0.65em;
+    margin-bottom: 0.65em;
+  }
+
   ul,
   ol {
     padding: 0 1rem;
     margin-top: 0.25rem;
     margin-bottom: 0.25rem;
+  }
+
+  ul p,
+  ol p {
+    margin-top: 0;
+    margin-bottom: 0;
   }
 
   h1,
@@ -45,8 +56,14 @@
   }
 
   a {
-    color: light-dark(#207af1, #587da9);
-    /*font-weight: bold;*/
+    color: light-dark(var(--mantine-color-dark-4), var(--mantine-color-dark-1));
+    @mixin light {
+      border-bottom: 0.05em solid var(--mantine-color-dark-0);
+    }
+    @mixin dark {
+      border-bottom: 0.05em solid var(--mantine-color-dark-2);
+    }
+    /*font-weight: 500; */
     text-decoration: none;
     cursor: pointer;
   }
@@ -80,15 +97,9 @@
     outline: 2px solid #70cff8;
   }
 
-  .node-mathInline {
-    .katex-display {
-      margin: 0;
-    }
-  }
-
   & > .react-renderer {
-    margin-top:  var(--mantine-spacing-xl);
-    margin-bottom: var(--mantine-spacing-xl);
+    margin-top:  var(--mantine-spacing-sm);
+    margin-bottom: var(--mantine-spacing-sm);
 
     &:first-child {
       margin-top: 0;
@@ -163,3 +174,4 @@
 .actionIconGroup {
   background: var(--mantine-color-body);
 }
+

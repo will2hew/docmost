@@ -3,7 +3,7 @@ import React from "react";
 import { TitleEditor } from "@/features/editor/title-editor";
 import PageEditor from "@/features/editor/page-editor";
 import { Container } from "@mantine/core";
-import { useAtom } from "jotai/index";
+import { useAtom } from "jotai";
 import { userAtom } from "@/features/user/atoms/current-user-atom.ts";
 
 const MemoizedTitleEditor = React.memo(TitleEditor);
@@ -13,6 +13,7 @@ export interface FullEditorProps {
   pageId: string;
   slugId: string;
   title: string;
+  content: string;
   spaceSlug: string;
   editable: boolean;
 }
@@ -21,6 +22,7 @@ export function FullEditor({
   pageId,
   title,
   slugId,
+  content,
   spaceSlug,
   editable,
 }: FullEditorProps) {
@@ -30,8 +32,7 @@ export function FullEditor({
   return (
     <Container
       fluid={fullPageWidth}
-      {...(fullPageWidth && { mx: 80 })}
-      size={850}
+      size={!fullPageWidth && 850}
       className={classes.editor}
     >
       <MemoizedTitleEditor
@@ -41,7 +42,7 @@ export function FullEditor({
         spaceSlug={spaceSlug}
         editable={editable}
       />
-      <MemoizedPageEditor pageId={pageId} editable={editable} />
+      <MemoizedPageEditor pageId={pageId} editable={editable} content={content} />
     </Container>
   );
 }

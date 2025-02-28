@@ -12,8 +12,7 @@ import { SpaceMemberRepo } from '@docmost/db/repos/space/space-member.repo';
 import { findHighestUserSpaceRole } from '@docmost/db/repos/space/utils';
 import { SpaceRole } from '../../common/helpers/types/permission';
 import { getPageId } from '../collaboration.util';
-import * as Cookies from 'cookie';
-import { JwtPayload } from 'src/core/auth/dto/jwt-payload';
+import { JwtCollabPayload, JwtType } from '../../core/auth/dto/jwt-payload';
 
 @Injectable()
 export class AuthenticationExtension implements Extension {
@@ -30,16 +29,17 @@ export class AuthenticationExtension implements Extension {
     const cookies = Cookies.parse(data.requestHeaders['cookie'] ?? '');
     const token = cookies['token'];
 
-    if (!token) {
-      throw new UnauthorizedException('No token provided');
-    }
+    let jwtPayload: JwtCollabPayload;
 
     let jwtPayload: JwtPayload;
 
     try {
       jwtPayload = await this.tokenService.verifyJwt(token);
     } catch (error) {
-      throw new UnauthorizedException('Invalid JWT token');
+      throw new UnauthorizedException('Invalid collab token');
+    }
+    if (jwtPayload.type !== JwtType.COLLAB) {
+      throw new UnauthorizedException();
     }
 
     const { documentName } = data;

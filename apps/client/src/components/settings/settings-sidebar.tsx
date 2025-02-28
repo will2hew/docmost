@@ -12,7 +12,7 @@ import {
 } from "@tabler/icons-react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import classes from "./settings.module.css";
-import useUserRole from "@/hooks/use-user-role";
+import { useTranslation } from "react-i18next";
 
 interface DataItem {
   label: string;
@@ -53,6 +53,7 @@ const groupedData: DataGroup[] = [
 ];
 
 export default function SettingsSidebar() {
+  const { t } = useTranslation();
   const location = useLocation();
   const [active, setActive] = useState(location.pathname);
   const navigate = useNavigate();
@@ -76,7 +77,7 @@ export default function SettingsSidebar() {
   const menuItems = groupedData.map((group) => (
     <div key={group.heading}>
       <Text c="dimmed" className={classes.linkHeader}>
-        {group.heading}
+        {t(group.heading)}
       </Text>
       {group.items.map((item) => (
         <Link
@@ -86,7 +87,7 @@ export default function SettingsSidebar() {
           to={item.path}
         >
           <item.icon className={classes.linkIcon} stroke={2} />
-          <span>{item.label}</span>
+          <span>{t(item.label)}</span>
         </Link>
       ))}
     </div>
@@ -103,10 +104,22 @@ export default function SettingsSidebar() {
         >
           <IconArrowLeft stroke={2} />
         </ActionIcon>
-        <Text fw={500}>Settings</Text>
+        <Text fw={500}>{t("Settings")}</Text>
       </Group>
 
       <ScrollArea w="100%">{menuItems}</ScrollArea>
+      <div className={classes.version}>
+        <Text
+          className={classes.version}
+          size="sm"
+          c="dimmed"
+          component="a"
+          href="https://github.com/docmost/docmost/releases"
+          target="_blank"
+        >
+          v{APP_VERSION}
+        </Text>
+      </div>
     </div>
   );
 }

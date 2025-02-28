@@ -1,7 +1,22 @@
 import { useState } from "react";
-import { setupWorkspace } from "@/features/auth/services/auth-service";
+import {
+  forgotPassword,
+  login,
+  logout,
+  passwordReset,
+  setupWorkspace,
+  verifyUserToken,
+} from "@/features/auth/services/auth-service";
 import { useNavigate } from "react-router-dom";
-import { ILogin, ISetupWorkspace } from "@/features/auth/types/auth.types";
+import { useAtom } from "jotai";
+import { currentUserAtom } from "@/features/user/atoms/current-user-atom";
+import {
+  IForgotPassword,
+  ILogin,
+  IPasswordReset,
+  ISetupWorkspace,
+  IVerifyUserToken,
+} from "@/features/auth/types/auth.types";
 import { notifications } from "@mantine/notifications";
 import {
   IAcceptInvite,
@@ -9,23 +24,25 @@ import {
 } from "@/features/workspace/types/workspace.types.ts";
 import { acceptInvitation } from "@/features/workspace/services/workspace-service.ts";
 import APP_ROUTE from "@/lib/app-route.ts";
-import api from "@/lib/api-client";
+import { RESET } from "jotai/utils";
+import { useTranslation } from "react-i18next";
 
 export default function useAuth() {
+  const { t } = useTranslation();
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
+  const [, setCurrentUser] = useAtom(currentUserAtom);
 
   const handleSignIn = async (data: ILogin) => {
     setIsLoading(true);
 
     try {
-      await api.post("/auth/login", data);
-
+      await login(data);
       setIsLoading(false);
       navigate(APP_ROUTE.HOME);
     } catch (err) {
       setIsLoading(false);
-
+      console.log(err);
       notifications.show({
         message: err.response?.data.message,
         color: "red",
@@ -38,7 +55,6 @@ export default function useAuth() {
 
     try {
       await acceptInvitation(data);
-
       setIsLoading(false);
       navigate(APP_ROUTE.HOME);
     } catch (err) {
@@ -55,10 +71,28 @@ export default function useAuth() {
     setIsLoading(true);
 
     try {
-      await setupWorkspace(data);
-
+      const res = await setupWorkspace(data);
       setIsLoading(false);
       navigate(APP_ROUTE.HOME);
+    } catch (err) {
+      setIsLoading(false);
+      notifications.show({
+        message: err.response?.data.message,
+        color: "red",
+      });
+    }
+  };
+
+  const handlePasswordReset = async (data: IPasswordReset) => {
+    setIsLoading(true);
+
+    try {
+      await passwordReset(data);
+      setIsLoading(false);
+      navigate(APP_ROUTE.HOME);
+      notifications.show({
+        message: t("Password reset was successful"),
+      });
     } catch (err) {
       setIsLoading(false);
 
@@ -69,25 +103,55 @@ export default function useAuth() {
     }
   };
 
-  const handleIsAuthenticated = async () => {
+  const handleLogout = async () => {
+    setCurrentUser(RESET);
+    await logout();
+    window.location.replace(APP_ROUTE.AUTH.LOGIN);
+  };
+
+  const handleForgotPassword = async (data: IForgotPassword) => {
+    setIsLoading(true);
+
     try {
-      await api.get(`/users/me`);
+      await forgotPassword(data);
+      setIsLoading(false);
+
       return true;
-    } catch {
+    } catch (err) {
+      console.log(err);
+      setIsLoading(false);
+      notifications.show({
+        message: err.response?.data.message,
+        color: "red",
+      });
+
       return false;
     }
   };
 
-  const handleLogout = async () => {
-    await api.post(`/auth/logout`);
-    navigate(APP_ROUTE.AUTH.LOGIN);
+  const handleVerifyUserToken = async (data: IVerifyUserToken) => {
+    setIsLoading(true);
+
+    try {
+      await verifyUserToken(data);
+      setIsLoading(false);
+    } catch (err) {
+      console.log(err);
+      setIsLoading(false);
+      notifications.show({
+        message: err.response?.data.message,
+        color: "red",
+      });
+    }
   };
 
   return {
     signIn: handleSignIn,
     invitationSignup: handleInvitationSignUp,
     setupWorkspace: handleSetupWorkspace,
-    isAuthenticated: handleIsAuthenticated,
+    forgotPassword: handleForgotPassword,
+    passwordReset: handlePasswordReset,
+    verifyUserToken: handleVerifyUserToken,
     logout: handleLogout,
     isLoading,
   };

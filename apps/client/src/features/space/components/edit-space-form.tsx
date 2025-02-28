@@ -4,10 +4,19 @@ import { useForm, zodResolver } from "@mantine/form";
 import * as z from "zod";
 import { useUpdateSpaceMutation } from "@/features/space/queries/space-query.ts";
 import { ISpace } from "@/features/space/types/space.types.ts";
+import { useTranslation } from "react-i18next";
 
 const formSchema = z.object({
   name: z.string().min(2).max(50),
   description: z.string().max(250),
+  slug: z
+    .string()
+    .min(2)
+    .max(50)
+    .regex(
+      /^[a-zA-Z0-9]+$/,
+      "Space slug must be alphanumeric. No special characters",
+    ),
 });
 
 type FormValues = z.infer<typeof formSchema>;
@@ -16,6 +25,7 @@ interface EditSpaceFormProps {
   readOnly?: boolean;
 }
 export function EditSpaceForm({ space, readOnly }: EditSpaceFormProps) {
+  const { t } = useTranslation();
   const updateSpaceMutation = useUpdateSpaceMutation();
 
   const form = useForm<FormValues>({
@@ -23,12 +33,14 @@ export function EditSpaceForm({ space, readOnly }: EditSpaceFormProps) {
     initialValues: {
       name: space?.name,
       description: space?.description || "",
+      slug: space.slug,
     },
   });
 
   const handleSubmit = async (values: {
     name?: string;
     description?: string;
+    slug?: string;
   }) => {
     const spaceData: Partial<ISpace> = {
       spaceId: space.id,
@@ -38,6 +50,10 @@ export function EditSpaceForm({ space, readOnly }: EditSpaceFormProps) {
     }
     if (form.isDirty("description")) {
       spaceData.description = values.description;
+    }
+
+    if (form.isDirty("slug")) {
+      spaceData.slug = values.slug;
     }
 
     await updateSpaceMutation.mutateAsync(spaceData);
@@ -51,8 +67,8 @@ export function EditSpaceForm({ space, readOnly }: EditSpaceFormProps) {
           <Stack>
             <TextInput
               id="name"
-              label="Name"
-              placeholder="e.g Sales"
+              label={t("Name")}
+              placeholder={t("e.g Sales")}
               variant="filled"
               readOnly={readOnly}
               {...form.getInputProps("name")}
@@ -60,16 +76,16 @@ export function EditSpaceForm({ space, readOnly }: EditSpaceFormProps) {
 
             <TextInput
               id="slug"
-              label="Slug"
+              label={t("Slug")}
               variant="filled"
-              readOnly
-              value={space.slug}
+              readOnly={readOnly}
+              {...form.getInputProps("slug")}
             />
 
             <Textarea
               id="description"
-              label="Description"
-              placeholder="e.g Space for sales team to collaborate"
+              label={t("Description")}
+              placeholder={t("e.g Space for sales team to collaborate")}
               variant="filled"
               readOnly={readOnly}
               autosize
@@ -82,7 +98,7 @@ export function EditSpaceForm({ space, readOnly }: EditSpaceFormProps) {
           {!readOnly && (
             <Group justify="flex-end" mt="md">
               <Button type="submit" disabled={!form.isDirty()}>
-                Save
+                {t("Save")}
               </Button>
             </Group>
           )}

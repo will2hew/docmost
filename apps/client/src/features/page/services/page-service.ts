@@ -1,11 +1,13 @@
 import api from "@/lib/api-client";
 import {
+  IExportPageParams,
   IMovePage,
   IPage,
   IPageInput,
   SidebarPagesParams,
 } from "@/features/page/types/page.types";
 import { IAttachment, IPagination } from "@/lib/types.ts";
+import { saveAs } from "file-saver";
 
 export async function createPage(data: Partial<IPage>): Promise<IPage> {
   const req = await api.post<IPage>("/pages/create", data);
@@ -53,18 +55,49 @@ export async function getRecentChanges(
   return req.data;
 }
 
-export async function uploadFile(file: File, pageId: string) {
+export async function exportPage(data: IExportPageParams): Promise<void> {
+  const req = await api.post("/pages/export", data, {
+    responseType: "blob",
+  });
+
+  const fileName = req?.headers["content-disposition"]
+    .split("filename=")[1]
+    .replace(/"/g, "");
+
+  saveAs(req.data, decodeURIComponent(fileName));
+}
+
+export async function importPage(file: File, spaceId: string) {
   const formData = new FormData();
+  formData.append("spaceId", spaceId);
+  formData.append("file", file);
+
+  const req = await api.post<IPage>("/pages/import", formData, {
+    headers: {
+      "Content-Type": "multipart/form-data",
+    },
+  });
+
+  return req.data;
+}
+
+export async function uploadFile(
+  file: File,
+  pageId: string,
+  attachmentId?: string,
+): Promise<IAttachment> {
+  const formData = new FormData();
+  if (attachmentId) {
+    formData.append("attachmentId", attachmentId);
+  }
   formData.append("pageId", pageId);
   formData.append("file", file);
 
-  // should be file endpoint
   const req = await api.post<IAttachment>("/files/upload", formData, {
     headers: {
       "Content-Type": "multipart/form-data",
     },
   });
-  // console.log("req", req);
 
-  return req;
+  return req as unknown as IAttachment;
 }

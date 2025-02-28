@@ -1,16 +1,16 @@
+import bytes from "bytes";
+
 declare global {
   interface Window {
     CONFIG?: Record<string, string>;
   }
 }
 
+export function getAppName(): string {
+  return "Docmost";
+}
+
 export function getAppUrl(): string {
-  let appUrl = window.CONFIG?.APP_URL || process.env.APP_URL;
-
-  if (import.meta.env.DEV) {
-    return appUrl || "http://localhost:3000";
-  }
-
   return `${window.location.protocol}//${window.location.host}`;
 }
 
@@ -19,20 +19,18 @@ export function getBackendUrl(): string {
 }
 
 export function getCollaborationUrl(): string {
-  const COLLAB_PATH = "/collab";
+  const baseUrl =
+    getConfigValue("COLLAB_URL") ||
+    (import.meta.env.DEV ? process.env.APP_URL : getAppUrl());
 
-  const wsProtocol = getAppUrl().startsWith("https") ? "wss" : "ws";
-  return `${wsProtocol}://${getAppUrl().split("://")[1]}${COLLAB_PATH}`;
+  const collabUrl = new URL("/collab", baseUrl);
+  collabUrl.protocol = collabUrl.protocol === "https:" ? "wss:" : "ws:";
+  return collabUrl.toString();
 }
 
 export function getAvatarUrl(avatarUrl: string) {
-  if (!avatarUrl) {
-    return null;
-  }
-
-  if (avatarUrl.startsWith("http")) {
-    return avatarUrl;
-  }
+  if (!avatarUrl) return null;
+  if (avatarUrl?.startsWith("http")) return avatarUrl;
 
   return getBackendUrl() + "/attachments/img/avatar/" + avatarUrl;
 }
@@ -42,5 +40,21 @@ export function getSpaceUrl(spaceSlug: string) {
 }
 
 export function getFileUrl(src: string) {
-  return src.startsWith("/files/") ? getBackendUrl() + src : src;
+  return src?.startsWith("/files/") ? getBackendUrl() + src : src;
+}
+
+export function getFileUploadSizeLimit() {
+  const limit = getConfigValue("FILE_UPLOAD_SIZE_LIMIT", "50mb");
+  return bytes(limit);
+}
+
+export function getDrawioUrl() {
+  return getConfigValue("DRAWIO_URL", "https://embed.diagrams.net");
+}
+
+function getConfigValue(key: string, defaultValue: string = undefined): string {
+  const rawValue = import.meta.env.DEV
+    ? process?.env?.[key]
+    : window?.CONFIG?.[key];
+  return rawValue ?? defaultValue;
 }

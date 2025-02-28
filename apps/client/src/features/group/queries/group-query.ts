@@ -3,6 +3,7 @@ import {
   useQuery,
   useQueryClient,
   UseQueryResult,
+  keepPreviousData,
 } from "@tanstack/react-query";
 import { IGroup } from "@/features/group/types/group.types";
 import {
@@ -16,37 +17,37 @@ import {
   updateGroup,
 } from "@/features/group/services/group-service";
 import { notifications } from "@mantine/notifications";
-import { QueryParams } from "@/lib/types.ts";
+import { IPagination, QueryParams } from "@/lib/types.ts";
+import { IUser } from "@/features/user/types/user.types.ts";
 
 export function useGetGroupsQuery(
   params?: QueryParams,
-): UseQueryResult<any, Error> {
+): UseQueryResult<IPagination<IGroup>, Error> {
   return useQuery({
     queryKey: ["groups", params],
     queryFn: () => getGroups(params),
+    placeholderData: keepPreviousData,
   });
 }
 
 export function useGroupQuery(groupId: string): UseQueryResult<IGroup, Error> {
   return useQuery({
-    queryKey: ["groups", groupId],
+    queryKey: ["group", groupId],
     queryFn: () => getGroupById(groupId),
     enabled: !!groupId,
   });
 }
 
-export function useGroupMembersQuery(groupId: string) {
-  return useQuery({
-    queryKey: ["groupMembers", groupId],
-    queryFn: () => getGroupMembers(groupId),
-    enabled: !!groupId,
-  });
-}
-
 export function useCreateGroupMutation() {
+  const queryClient = useQueryClient();
+
   return useMutation<IGroup, Error, Partial<IGroup>>({
     mutationFn: (data) => createGroup(data),
     onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ["groups"],
+      });
+
       notifications.show({ message: "Group created successfully" });
     },
     onError: () => {
@@ -80,17 +81,24 @@ export function useDeleteGroupMutation() {
     mutationFn: (groupId: string) => deleteGroup({ groupId }),
     onSuccess: (data, variables) => {
       notifications.show({ message: "Group deleted successfully" });
-
-      const groups = queryClient.getQueryData(["groups"]) as any;
-      if (groups) {
-        groups.items?.filter((group: IGroup) => group.id !== variables);
-        queryClient.setQueryData(["groups"], groups);
-      }
+      queryClient.refetchQueries({ queryKey: ["groups"] });
     },
     onError: (error) => {
       const errorMessage = error["response"]?.data?.message;
       notifications.show({ message: errorMessage, color: "red" });
     },
+  });
+}
+
+export function useGroupMembersQuery(
+  groupId: string,
+  params?: QueryParams,
+): UseQueryResult<IPagination<IUser>, Error> {
+  return useQuery({
+    queryKey: ["groupMembers", groupId, params],
+    queryFn: () => getGroupMembers(groupId, params),
+    enabled: !!groupId,
+    placeholderData: keepPreviousData,
   });
 }
 

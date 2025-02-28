@@ -1,8 +1,16 @@
 .ProseMirror {
+  .codeBlock {
+    padding: 4px;
+    border-radius: var(--mantine-radius-default);
+    background-color: light-dark(var(--mantine-color-gray-0),  var(--mantine-color-dark-8));
+    }
+
   pre {
-    padding: var(--mantine-spacing-sm) var(--mantine-spacing-md);
+    padding: var(--mantine-spacing-xs) var(--mantine-spacing-md);
+    margin: 4px;
     font-family: "JetBrainsMono", var(--mantine-font-family-monospace);
     border-radius: var(--mantine-radius-default);
+    tab-size: 4;
 
     @mixin light {
       background-color: var(--mantine-color-gray-0);
@@ -18,7 +26,7 @@
       color: inherit;
       padding: 0;
       background: none;
-      font-size: inherit;
+      font-size: var(--mantine-font-size-sm);
     }
 
     /* Code styling */
@@ -84,6 +92,24 @@
 
     .hljs-strong {
       font-weight: 700;
+    }
+  }
+
+  :not(pre) > code {
+    font-family: "JetBrainsMono", var(--mantine-font-family-monospace);
+    line-height: var(--mantine-line-height);
+    padding: 2px calc(var(--mantine-spacing-xs) / 2);
+    border-radius: var(--mantine-radius-sm);
+    margin: 0;
+
+    @mixin where-light {
+      background-color: var(--code-bg, var(--mantine-color-gray-1));
+      color: var(--mantine-color-pink-7);
+    }
+
+    @mixin where-dark {
+      background-color: var(--mantine-color-dark-8);
+      color: var(--mantine-color-pink-7);
     }
   }
 }

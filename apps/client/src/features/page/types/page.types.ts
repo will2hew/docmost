@@ -44,3 +44,14 @@ export interface IPageInput {
   coverPhoto: string;
   position: string;
 }
+
+export interface IExportPageParams {
+  pageId: string;
+  format: ExportFormat;
+  includeChildren?: boolean;
+}
+
+export enum ExportFormat {
+  HTML = "html",
+  Markdown = "markdown",
+}

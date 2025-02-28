@@ -12,9 +12,12 @@ import {
   IconMath,
   IconMathFunction,
   IconMovie,
+  IconPaperclip,
   IconPhoto,
   IconTable,
   IconTypography,
+  IconMenu4,
+  IconCalendar,
 } from "@tabler/icons-react";
 import {
   CommandProps,
@@ -22,6 +25,21 @@ import {
 } from "@/features/editor/components/slash-menu/types";
 import { uploadImageAction } from "@/features/editor/components/image/upload-image-action.tsx";
 import { uploadVideoAction } from "@/features/editor/components/video/upload-video-action.tsx";
+import { uploadAttachmentAction } from "@/features/editor/components/attachment/upload-attachment-action.tsx";
+import IconExcalidraw from "@/components/icons/icon-excalidraw";
+import IconMermaid from "@/components/icons/icon-mermaid";
+import IconDrawio from "@/components/icons/icon-drawio";
+import {
+  AirtableIcon,
+  FigmaIcon,
+  FramerIcon,
+  GoogleDriveIcon,
+  GoogleSheetsIcon,
+  LoomIcon,
+  MiroIcon,
+  TypeformIcon,
+  VimeoIcon, YoutubeIcon
+} from "@/components/icons";
 
 const CommandGroups: SlashMenuGroupedItemsType = {
   basic: [
@@ -118,15 +136,23 @@ const CommandGroups: SlashMenuGroupedItemsType = {
     },
     {
       title: "Code",
-      description: "Capture a code snippet.",
+      description: "Insert code snippet.",
       searchTerms: ["codeblock"],
       icon: IconCode,
       command: ({ editor, range }: CommandProps) =>
         editor.chain().focus().deleteRange(range).toggleCodeBlock().run(),
     },
     {
+      title: "Divider",
+      description: "Insert horizontal rule divider",
+      searchTerms: ["horizontal rule", "hr"],
+      icon: IconMenu4,
+      command: ({ editor, range }: CommandProps) =>
+        editor.chain().focus().deleteRange(range).setHorizontalRule().run(),
+    },
+    {
       title: "Image",
-      description: "Upload an image from your computer.",
+      description: "Upload any image from your device.",
       searchTerms: ["photo", "picture", "media"],
       icon: IconPhoto,
       command: ({ editor, range }) => {
@@ -139,11 +165,13 @@ const CommandGroups: SlashMenuGroupedItemsType = {
         const input = document.createElement("input");
         input.type = "file";
         input.accept = "image/*";
+        input.multiple = true;
         input.onchange = async () => {
           if (input.files?.length) {
-            const file = input.files[0];
-            const pos = editor.view.state.selection.from;
-            uploadImageAction(file, editor.view, pos, pageId);
+            for (const file of input.files) {
+              const pos = editor.view.state.selection.from;
+              uploadImageAction(file, editor.view, pos, pageId);
+            }
           }
         };
         input.click();
@@ -151,7 +179,7 @@ const CommandGroups: SlashMenuGroupedItemsType = {
     },
     {
       title: "Video",
-      description: "Upload an video from your computer.",
+      description: "Upload any video from your device.",
       searchTerms: ["video", "mp4", "media"],
       icon: IconMovie,
       command: ({ editor, range }) => {
@@ -175,6 +203,37 @@ const CommandGroups: SlashMenuGroupedItemsType = {
       },
     },
     {
+      title: "File attachment",
+      description: "Upload any file from your device.",
+      searchTerms: ["file", "attachment", "upload", "pdf", "csv", "zip"],
+      icon: IconPaperclip,
+      command: ({ editor, range }) => {
+        editor.chain().focus().deleteRange(range).run();
+
+        const pageId = editor.storage?.pageId;
+        if (!pageId) return;
+
+        // upload file
+        const input = document.createElement("input");
+        input.type = "file";
+        input.accept = "";
+        input.onchange = async () => {
+          if (input.files?.length) {
+            const file = input.files[0];
+            const pos = editor.view.state.selection.from;
+            if (file.type.includes("image/*")) {
+              uploadImageAction(file, editor.view, pos, pageId);
+            } else if (file.type.includes("video/*")) {
+              uploadVideoAction(file, editor.view, pos, pageId);
+            } else {
+              uploadAttachmentAction(file, editor.view, pos, pageId);
+            }
+          }
+        };
+        input.click();
+      },
+    },
+    {
       title: "Table",
       description: "Insert a table.",
       searchTerms: ["table", "rows", "columns"],
@@ -184,7 +243,7 @@ const CommandGroups: SlashMenuGroupedItemsType = {
           .chain()
           .focus()
           .deleteRange(range)
-          .insertTable({ rows: 3, cols: 3, withHeaderRow: false })
+          .insertTable({ rows: 3, cols: 3, withHeaderRow: true })
           .run(),
     },
     {
@@ -253,6 +312,146 @@ const CommandGroups: SlashMenuGroupedItemsType = {
       command: ({ editor, range }: CommandProps) =>
         editor.chain().focus().deleteRange(range).setMathBlock().run(),
     },
+    {
+      title: "Mermaid diagram",
+      description: "Insert mermaid diagram",
+      searchTerms: ["mermaid", "diagrams", "chart", "uml"],
+      icon: IconMermaid,
+      command: ({ editor, range }: CommandProps) =>
+        editor
+          .chain()
+          .focus()
+          .deleteRange(range)
+          .setCodeBlock({ language: "mermaid" })
+          .insertContent("flowchart LR\n" + "    A --> B")
+          .run(),
+    },
+    {
+      title: "Draw.io (diagrams.net) ",
+      description: "Insert and design Drawio diagrams",
+      searchTerms: ["drawio", "diagrams", "charts", "uml", "whiteboard"],
+      icon: IconDrawio,
+      command: ({ editor, range }: CommandProps) =>
+        editor.chain().focus().deleteRange(range).setDrawio().run(),
+    },
+    {
+      title: "Excalidraw diagram",
+      description: "Draw and sketch excalidraw diagrams",
+      searchTerms: ["diagrams", "draw", "sketch", "whiteboard"],
+      icon: IconExcalidraw,
+      command: ({ editor, range }: CommandProps) =>
+        editor.chain().focus().deleteRange(range).setExcalidraw().run(),
+    },
+    {
+      title: "Date",
+      description: "Insert current date",
+      searchTerms: ["date", "today"],
+      icon: IconCalendar,
+      command: ({ editor, range }: CommandProps) => {
+        const currentDate = new Date().toLocaleDateString("en-US", {
+          year: "numeric",
+          month: "long",
+          day: "numeric",
+        });
+
+        editor
+          .chain()
+          .focus()
+          .deleteRange(range)
+          .insertContent(currentDate)
+          .run();
+      },
+    },
+    {
+      title: "Airtable",
+      description: "Embed Airtable",
+      searchTerms: ["airtable"],
+      icon: AirtableIcon,
+      command: ({ editor, range }: CommandProps) => {
+        editor.chain().focus().deleteRange(range).setEmbed({ provider: 'airtable' }).run();
+      },
+    },
+    {
+      title: "Loom",
+      description: "Embed Loom video",
+      searchTerms: ["loom"],
+      icon: LoomIcon,
+      command: ({ editor, range }: CommandProps) => {
+        editor.chain().focus().deleteRange(range).setEmbed({ provider: 'loom' }).run();
+      },
+    },
+    {
+      title: "Figma",
+      description: "Embed Figma files",
+      searchTerms: ["figma"],
+      icon: FigmaIcon,
+      command: ({ editor, range }: CommandProps) => {
+        editor.chain().focus().deleteRange(range).setEmbed({ provider: 'figma' }).run();
+      },
+    },
+    {
+      title: "Typeform",
+      description: "Embed Typeform",
+      searchTerms: ["typeform"],
+      icon: TypeformIcon,
+      command: ({ editor, range }: CommandProps) => {
+        editor.chain().focus().deleteRange(range).setEmbed({ provider: 'typeform' }).run();
+      },
+    },
+    {
+      title: "Miro",
+      description: "Embed Miro board",
+      searchTerms: ["miro"],
+      icon: MiroIcon,
+      command: ({ editor, range }: CommandProps) => {
+        editor.chain().focus().deleteRange(range).setEmbed({ provider: 'miro' }).run();
+      },
+    },
+    {
+      title: "YouTube",
+      description: "Embed YouTube video",
+      searchTerms: ["youtube", "yt"],
+      icon: YoutubeIcon,
+      command: ({ editor, range }: CommandProps) => {
+        editor.chain().focus().deleteRange(range).setEmbed({ provider: 'youtube' }).run();
+      },
+    },
+    {
+      title: "Vimeo",
+      description: "Embed Vimeo video",
+      searchTerms: ["vimeo"],
+      icon: VimeoIcon,
+      command: ({ editor, range }: CommandProps) => {
+        editor.chain().focus().deleteRange(range).setEmbed({ provider: 'vimeo' }).run();
+      },
+    },
+    {
+      title: "Framer",
+      description: "Embed Framer prototype",
+      searchTerms: ["framer"],
+      icon: FramerIcon,
+      command: ({ editor, range }: CommandProps) => {
+        editor.chain().focus().deleteRange(range).setEmbed({ provider: 'framer' }).run();
+      },
+    },
+    {
+      title: "Google Drive",
+      description: "Embed Google Drive content",
+      searchTerms: ["google drive", "gdrive"],
+      icon: GoogleDriveIcon,
+      command: ({ editor, range }: CommandProps) => {
+        editor.chain().focus().deleteRange(range).setEmbed({ provider: 'gdrive' }).run();
+      },
+    },
+    {
+      title: "Google Sheets",
+      description: "Embed Google Sheets content",
+      searchTerms: ["google sheets", "gsheets"],
+      icon: GoogleSheetsIcon,
+      command: ({ editor, range }: CommandProps) => {
+        editor.chain().focus().deleteRange(range).setEmbed({ provider: 'gsheets' }).run();
+      },
+    },
   ],
 };
 
@@ -264,10 +463,10 @@ export const getSuggestionItems = ({
   const search = query.toLowerCase();
   const filteredGroups: SlashMenuGroupedItemsType = {};
 
-  const fuzzyMatch = (query, target) => {
+  const fuzzyMatch = (query: string, target: string) => {
     let queryIndex = 0;
     target = target.toLowerCase();
-    for (let char of target) {
+    for (const char of target) {
       if (query[queryIndex] === char) queryIndex++;
       if (queryIndex === query.length) return true;
     }
